@@ -36,6 +36,9 @@
 Mutation* FindMutation(Mutation* start, ContextType ctxType, ContextValue* ctxValue);
 wchar_t* GetKeyNameFromHandle(HANDLE key, PULONG size);
 
+// ·s¼WGetProcAddressªºProto
+NT_HOOK(FARPROC, WINAPI, GetProcAddress, HMODULE hModule, LPCSTR lpProcName);
+
 // ~~~~~~### Environment Calls ###~~~~~~
 // NtOpenKey
 NT_HOOK(NTSTATUS, NTAPI, NtOpenKey, OUT PHANDLE pKeyHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes);

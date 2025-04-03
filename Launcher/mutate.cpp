@@ -28,11 +28,9 @@ BOOL GenPreventiveMutationsAll()
 	// 將這個Mutation紀錄到frameCurr裡，表示運行時要用這突變
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
-	mutType = MUT_FAIL;
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
-	mutType = MUT_FAIL;
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 
@@ -46,6 +44,9 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtQueryValueKey: MUT_ALT_STR -> Ctx "VBox", "Virtual"
 	rec.call = Call::cNtQueryValueKey;
@@ -56,8 +57,11 @@ BOOL GenPreventiveMutationsAll()
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtCreateKey: MUT_ALT_NUM -> Ctx "VBox", "Virtual"	Num 1
+	// 創建新的註冊表，如果能創建表示不在虛擬機裡
 	rec.call = Call::cNtCreateKey;
 	rec.type = CTX_SUB;
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
@@ -65,6 +69,8 @@ BOOL GenPreventiveMutationsAll()
 	mutVal.nValue = 1; // Disposition == new key created
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
+	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtEnumerateKey: MUT_ALT_STR -> Ctx "VBox", "Virtual"
@@ -76,6 +82,8 @@ BOOL GenPreventiveMutationsAll()
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtEnumerateValueKey: MUT_ALT_STR -> Ctx "VBox", "Virtual"
 	rec.call = Call::cNtEnumerateValueKey;
@@ -86,6 +94,8 @@ BOOL GenPreventiveMutationsAll()
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtCreateFile: MUT_FAIL -> Ctx "VBox"	Ret STATUS_OBJECT_NAME_NOT_FOUND
 	rec.call = Call::cNtCreateFile;
@@ -93,6 +103,8 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtQueryAttributesFile: MUT_FAIL -> Ctx "VBox"	Ret STATUS_OBJECT_NAME_NOT_FOUND
@@ -102,8 +114,11 @@ BOOL GenPreventiveMutationsAll()
 	mutType = MUT_FAIL;
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtDeviceIoControlFile: MUT_ALT_NUM -> NO Ctx	Num 512
+	// 用Disk大小判斷
 	rec.call = Call::cNtDeviceIoControlFile;
 	rec.value.dwCtx = 0x7405c; // IOCTL_DISK_GET_LENGTH_INFO
 	mutType = MUT_ALT_NUM;
@@ -152,6 +167,8 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
 	mutVal.nValue = 0xC000000F; // STATUS_NO_SUCH_FILE
+	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cNtQueryInformationProcess: MUT_HIDE -> NO Ctx NO Val
@@ -225,12 +242,16 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
 	AddMutationToList(&rec, &mutType, NULL);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, NULL);
 
 	// cFindWindowW: MUT_FAIL -> Ctx "VBox"
 	rec.call = Call::cFindWindowW;
 	rec.type = CTX_SUB;
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
+	AddMutationToList(&rec, &mutType, NULL);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	AddMutationToList(&rec, &mutType, NULL);
 
 	// cFindWindowExA: MUT_FAIL -> Ctx "VBox"
@@ -239,12 +260,16 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
 	AddMutationToList(&rec, &mutType, NULL);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	AddMutationToList(&rec, &mutType, NULL);
 
 	// cFindWindowExW: MUT_FAIL -> Ctx "VBox"
 	rec.call = Call::cFindWindowExW;
 	rec.type = CTX_SUB;
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vbox");
 	mutType = MUT_FAIL;
+	AddMutationToList(&rec, &mutType, NULL);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	AddMutationToList(&rec, &mutType, NULL);
 
 	// cGetCursorPos: MUT_RND_TUP -> NO Ctx
@@ -272,6 +297,9 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cLoadLibraryExW: MUT_FAIL -> Ctx "VBox", "Virtual"	Ret STATUS_OBJECT_NAME_NOT_FOUND
 	rec.call = Call::cLoadLibraryExA;
@@ -281,6 +309,9 @@ BOOL GenPreventiveMutationsAll()
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
+	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 
@@ -294,6 +325,9 @@ BOOL GenPreventiveMutationsAll()
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
+	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
 
 	// cLoadLibraryA: MUT_FAIL -> Ctx "VBox", "Virtual"	Ret STATUS_OBJECT_NAME_NOT_FOUND
 	rec.call = Call::cLoadLibraryA;
@@ -303,6 +337,9 @@ BOOL GenPreventiveMutationsAll()
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"virtual");
+	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
+	AddMutationToList(&rec, &mutType, &mutVal);
+	wcscpy_s(rec.value.szCtx, MAX_CTX_LEN, L"vmware");
 	mutVal.nValue = 0xC0000034; // STATUS_OBJECT_NAME_NOT_FOUND
 	AddMutationToList(&rec, &mutType, &mutVal);
 

@@ -288,10 +288,18 @@ Mutation* FindMutation(Mutation* start, ContextType ctxType, ContextValue* ctxVa
 
 	Mutation* loop = start;
 	//cout << "ctxType: " << ctxType << endl;
+
+	printf("---------------------------------------------\n");
+	printf("正在判斷Mutation: %d", start->rec.call);
+	
+	//cout << "正在判斷Mutation: " << start->rec.call << endl;
+
 	if (ctxType == CTX_NUM) {
 		while (loop != NULL) {
 			if (loop->rec.value.dwCtx == ctxValue->dwCtx) {
 				// context match
+				printf(" / 找到Mutation\n");
+				printf("---------------------------------------------\n");
 				return loop;
 			}
 			loop = loop->next;
@@ -304,11 +312,13 @@ Mutation* FindMutation(Mutation* start, ContextType ctxType, ContextValue* ctxVa
 		while (loop != NULL) {
 			//cout << "loop->rec.type: " << loop->rec.type << endl;
 			if (loop->rec.type == CTX_SUB) {
-				cout << "Mutation: " << loop->rec.call << endl;
-				cout << "loop->rec.value.szCtx: " << loop->rec.value.szCtx << " ctxValue->szCtx: " << ctxValue->szCtx << endl;
+				//cout << "Mutation: " << loop->rec.call << endl;
+				//cout << "loop->rec.value.szCtx: " << loop->rec.value.szCtx << " ctxValue->szCtx: " << ctxValue->szCtx << endl;
 				// assumes substring target ctx is lower case !
 				if (wcsstr(_wcslwr(ctxValue->szCtx), loop->rec.value.szCtx) != NULL) { // is target a substring of ctx?
 					// context match
+					printf(" / 找到Mutation\n");
+					printf("---------------------------------------------\n");
 					return loop;
 				}
 			}
@@ -317,6 +327,8 @@ Mutation* FindMutation(Mutation* start, ContextType ctxType, ContextValue* ctxVa
 				//cout << "loop->rec.value.szCtx: " << loop->rec.value.szCtx << " ctxValue->szCtx: " << ctxValue->szCtx << endl;
 				if (wcsncmp(loop->rec.value.szCtx, ctxValue->szCtx, MAX_CTX_LEN) == 0) {
 					// context match
+					printf(" / 找到Mutation\n");
+					printf("---------------------------------------------\n");
 					return loop;
 				}
 			}
@@ -324,6 +336,8 @@ Mutation* FindMutation(Mutation* start, ContextType ctxType, ContextValue* ctxVa
 		}
 	}
 
+	printf(" / 沒找到Mutation\n");
+	printf("---------------------------------------------\n");
 	return NULL;
 }
 
@@ -3794,14 +3808,110 @@ ULONG_PTR GetJumpAddr(void* hookFuncAddr) {
 	return (ULONG_PTR)hookFuncAddr;
 }
 
+// 虛假的GetProcAddress
 FARPROC WINAPI HookGetProcAddress(
 	_In_ HMODULE hModule,
 	_In_ LPCSTR lpProcName
 ) {
 	cout << "Hook GetProcAddress and search: " << lpProcName << endl;
-	if (_stricmp(lpProcName, "NtOpenKey") == 0) {
-		return (FARPROC)GetJumpAddr(HookNtOpenKey);
-	}
+	if (_stricmp(lpProcName, "NtOpenKey") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenKey); }
+	if (_stricmp(lpProcName, "NtOpenKeyEx") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenKeyEx); }
+	if (_stricmp(lpProcName, "NtQueryValueKey") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryValueKey); }
+	if (_stricmp(lpProcName, "NtCreateKey") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateKey); }
+	if (_stricmp(lpProcName, "NtEnumerateKey") == 0) { return (FARPROC)GetJumpAddr(HookNtEnumerateKey); }
+	if (_stricmp(lpProcName, "NtEnumerateValueKey") == 0) { return (FARPROC)GetJumpAddr(HookNtEnumerateValueKey); }
+	if (_stricmp(lpProcName, "NtCreateFile") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateFile); }
+	if (_stricmp(lpProcName, "NtQueryAttributesFile") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryAttributesFile); }
+	if (_stricmp(lpProcName, "NtDeviceIoControlFile") == 0) { return (FARPROC)GetJumpAddr(HookNtDeviceIoControlFile); }
+	if (_stricmp(lpProcName, "NtQueryVolumeInformationFile") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryVolumeInformationFile); }
+	if (_stricmp(lpProcName, "NtQuerySystemInformation") == 0) { return (FARPROC)GetJumpAddr(HookNtQuerySystemInformation); }
+	if (_stricmp(lpProcName, "NtQuerySystemInformationEx") == 0) { return (FARPROC)GetJumpAddr(HookNtQuerySystemInformationEx); }
+	if (_stricmp(lpProcName, "NtPowerInformation") == 0) { return (FARPROC)GetJumpAddr(HookNtPowerInformation); }
+	if (_stricmp(lpProcName, "NtQueryLicenseValue") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryLicenseValue); }
+	if (_stricmp(lpProcName, "NtQueryDirectoryFile") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryDirectoryFile); }
+	if (_stricmp(lpProcName, "NtQueryInformationProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryInformationProcess); }
+	if (_stricmp(lpProcName, "NtQueryDirectoryObject") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryDirectoryObject); }
+	if (_stricmp(lpProcName, "NtCreateMutant") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateMutant); }
+	if (_stricmp(lpProcName, "GetAdaptersAddresses") == 0) { return (FARPROC)GetJumpAddr(HookGetAdaptersAddresses); }
+	if (_stricmp(lpProcName, "Process32FirstW") == 0) { return (FARPROC)GetJumpAddr(HookProcess32FirstW); }
+	if (_stricmp(lpProcName, "Process32NextW") == 0) { return (FARPROC)GetJumpAddr(HookProcess32NextW); }
+	if (_stricmp(lpProcName, "CoCreateInstance") == 0) { return (FARPROC)GetJumpAddr(HookCoCreateInstance); }
+	if (_stricmp(lpProcName, "GetModuleHandleW") == 0) { return (FARPROC)GetJumpAddr(HookGetModuleHandleW); }
+	if (_stricmp(lpProcName, "GetModuleHandleA") == 0) { return (FARPROC)GetJumpAddr(HookGetModuleHandleA); }
+	if (_stricmp(lpProcName, "GetModuleHandleExW") == 0) { return (FARPROC)GetJumpAddr(HookGetModuleHandleExW); }
+	if (_stricmp(lpProcName, "GetModuleHandleExA") == 0) { return (FARPROC)GetJumpAddr(HookGetModuleHandleExA); }
+	if (_stricmp(lpProcName, "GetAdaptersInfo") == 0) { return (FARPROC)GetJumpAddr(HookGetAdaptersInfo); }
+	if (_stricmp(lpProcName, "SetupDiGetDeviceRegistryPropertyW") == 0) { return (FARPROC)GetJumpAddr(HookSetupDiGetDeviceRegistryPropertyW); }
+	if (_stricmp(lpProcName, "SetupDiGetDeviceRegistryPropertyA") == 0) { return (FARPROC)GetJumpAddr(HookSetupDiGetDeviceRegistryPropertyA); }
+	if (_stricmp(lpProcName, "GetLastInputInfo") == 0) { return (FARPROC)GetJumpAddr(HookGetLastInputInfo); }
+	if (_stricmp(lpProcName, "EnumServicesStatusExA") == 0) { return (FARPROC)GetJumpAddr(HookEnumServicesStatusExA); }
+	if (_stricmp(lpProcName, "EnumServicesStatusExW") == 0) { return (FARPROC)GetJumpAddr(HookEnumServicesStatusExW); }
+	if (_stricmp(lpProcName, "InternetCheckConnectionA") == 0) { return (FARPROC)GetJumpAddr(HookInternetCheckConnectionA); }
+	if (_stricmp(lpProcName, "InternetCheckConnectionW") == 0) { return (FARPROC)GetJumpAddr(HookInternetCheckConnectionW); }
+	if (_stricmp(lpProcName, "GetWindowRect") == 0) { return (FARPROC)GetJumpAddr(HookGetWindowRect); }
+	if (_stricmp(lpProcName, "GetMonitorInfoA") == 0) { return (FARPROC)GetJumpAddr(HookGetMonitorInfoA); }
+	if (_stricmp(lpProcName, "GetMonitorInfoW") == 0) { return (FARPROC)GetJumpAddr(HookGetMonitorInfoW); }
+	if (_stricmp(lpProcName, "FindWindowA") == 0) { return (FARPROC)GetJumpAddr(HookFindWindowA); }
+	if (_stricmp(lpProcName, "FindWindowW") == 0) { return (FARPROC)GetJumpAddr(HookFindWindowW); }
+	if (_stricmp(lpProcName, "FindWindowExA") == 0) { return (FARPROC)GetJumpAddr(HookFindWindowExA); }
+	if (_stricmp(lpProcName, "FindWindowExW") == 0) { return (FARPROC)GetJumpAddr(HookFindWindowExW); }
+	if (_stricmp(lpProcName, "GetCursorPos") == 0) { return (FARPROC)GetJumpAddr(HookGetCursorPos); }
+	if (_stricmp(lpProcName, "GetSystemMetrics") == 0) { return (FARPROC)GetJumpAddr(HookGetSystemMetrics); }
+	if (_stricmp(lpProcName, "SystemParametersInfoA") == 0) { return (FARPROC)GetJumpAddr(HookSystemParametersInfoA); }
+	if (_stricmp(lpProcName, "SystemParametersInfoW") == 0) { return (FARPROC)GetJumpAddr(HookSystemParametersInfoW); }
+	if (_stricmp(lpProcName, "GetAsyncKeyState") == 0) { return (FARPROC)GetJumpAddr(HookGetAsyncKeyState); }
+	if (_stricmp(lpProcName, "GetForegroundWindow") == 0) { return (FARPROC)GetJumpAddr(HookGetForegroundWindow); }
+	if (_stricmp(lpProcName, "LoadLibraryExW") == 0) { return (FARPROC)GetJumpAddr(HookLoadLibraryExW); }
+	if (_stricmp(lpProcName, "LoadLibraryExA") == 0) { return (FARPROC)GetJumpAddr(HookLoadLibraryExA); }
+	if (_stricmp(lpProcName, "LoadLibraryW") == 0) { return (FARPROC)GetJumpAddr(HookLoadLibraryW); }
+	if (_stricmp(lpProcName, "LoadLibraryA") == 0) { return (FARPROC)GetJumpAddr(HookLoadLibraryA); }
+	
+	// activity
+	if (_stricmp(lpProcName, "NtOpenFile") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenFile); }
+	if (_stricmp(lpProcName, "NtReadFile") == 0) { return (FARPROC)GetJumpAddr(HookNtReadFile); }
+	if (_stricmp(lpProcName, "NtWriteFile") == 0) { return (FARPROC)GetJumpAddr(HookNtWriteFile); }
+	if (_stricmp(lpProcName, "NtDeleteFile") == 0) { return (FARPROC)GetJumpAddr(HookNtDeleteFile); }
+	if (_stricmp(lpProcName, "NtQueryInformationFile") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryInformationFile); }
+	if (_stricmp(lpProcName, "NtSetInformationFile") == 0) { return (FARPROC)GetJumpAddr(HookNtSetInformationFile); }
+	if (_stricmp(lpProcName, "NtOpenDirectoryObject") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenDirectoryObject); }
+	if (_stricmp(lpProcName, "NtCreateDirectoryObject") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateDirectoryObject); }
+	if (_stricmp(lpProcName, "NtCreateUserProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateUserProcess); }
+	if (_stricmp(lpProcName, "NtCreateProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateProcess); }
+	if (_stricmp(lpProcName, "NtCreateProcessEx") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateProcessEx); }
+	if (_stricmp(lpProcName, "NtSuspendProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtSuspendProcess); }
+	if (_stricmp(lpProcName, "NtTerminateProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtTerminateProcess); }
+	if (_stricmp(lpProcName, "NtMapViewOfSection") == 0) { return (FARPROC)GetJumpAddr(HookNtMapViewOfSection); }
+	if (_stricmp(lpProcName, "NtUnmapViewOfSection") == 0) { return (FARPROC)GetJumpAddr(HookNtUnmapViewOfSection); }
+	if (_stricmp(lpProcName, "NtMakeTemporaryObject") == 0) { return (FARPROC)GetJumpAddr(HookNtMakeTemporaryObject); }
+	if (_stricmp(lpProcName, "NtMakePermanentObject") == 0) { return (FARPROC)GetJumpAddr(HookNtMakePermanentObject); }
+	if (_stricmp(lpProcName, "NtWriteVirtualMemory") == 0) { return (FARPROC)GetJumpAddr(HookNtWriteVirtualMemory); }
+	if (_stricmp(lpProcName, "NtSetInformationProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtSetInformationProcess); }
+	if (_stricmp(lpProcName, "NtGetNextProcess") == 0) { return (FARPROC)GetJumpAddr(HookNtGetNextProcess); }
+	if (_stricmp(lpProcName, "NtReplaceKey") == 0) { return (FARPROC)GetJumpAddr(HookNtReplaceKey); }
+	if (_stricmp(lpProcName, "NtRenameKey") == 0) { return (FARPROC)GetJumpAddr(HookNtRenameKey); }
+	if (_stricmp(lpProcName, "NtSaveKey") == 0) { return (FARPROC)GetJumpAddr(HookNtSaveKey); }
+	if (_stricmp(lpProcName, "NtSaveKeyEx") == 0) { return (FARPROC)GetJumpAddr(HookNtSaveKeyEx); }
+	if (_stricmp(lpProcName, "NtSetValueKey") == 0) { return (FARPROC)GetJumpAddr(HookNtSetValueKey); }
+	if (_stricmp(lpProcName, "NtDeleteKey") == 0) { return (FARPROC)GetJumpAddr(HookNtDeleteKey); }
+	if (_stricmp(lpProcName, "NtDeleteValueKey") == 0) { return (FARPROC)GetJumpAddr(HookNtDeleteValueKey); }
+	if (_stricmp(lpProcName, "NtOpenTimer") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenTimer); }
+	if (_stricmp(lpProcName, "NtQueryTimer") == 0) { return (FARPROC)GetJumpAddr(HookNtQueryTimer); }
+	if (_stricmp(lpProcName, "NtCreateTimer") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateTimer); }
+	if (_stricmp(lpProcName, "NtQuerySystemTime") == 0) { return (FARPROC)GetJumpAddr(HookNtQuerySystemTime); }
+	if (_stricmp(lpProcName, "NtOpenEvent") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenEvent); }
+	if (_stricmp(lpProcName, "NtNotifyChangeKey") == 0) { return (FARPROC)GetJumpAddr(HookNtNotifyChangeKey); }
+	if (_stricmp(lpProcName, "NtOpenSemaphore") == 0) { return (FARPROC)GetJumpAddr(HookNtOpenSemaphore); }
+	if (_stricmp(lpProcName, "NtCreateSemaphore") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateSemaphore); }
+	if (_stricmp(lpProcName, "NtLockFile") == 0) { return (FARPROC)GetJumpAddr(HookNtLockFile); }
+
+	if (_stricmp(lpProcName, "NtDelayExecution") == 0) { return (FARPROC)GetJumpAddr(HookNtDelayExecution); }
+
+	// thread test
+	if (_stricmp(lpProcName, "NtCreateThread") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateThread); }
+	if (_stricmp(lpProcName, "NtCreateThreadEx") == 0) { return (FARPROC)GetJumpAddr(HookNtCreateThreadEx); }
+	
+	// 若都不符合則用原本的GetProcAddress來找函數
+	return OgGetProcAddress(hModule, lpProcName);
 	return 0;
 }
 
@@ -3844,13 +3954,13 @@ bool InstallIATHook(const char* dllName, const char* funcName, void* hookFuncAdd
 				pInt++;
 				pIat++;
 			}
-			cout << "找不到對應函數名" << endl;
+			//cout << "找不到對應函數名" << funcName << endl;
 			return false;
 
 		}
 		pImageDescripor++;
 	}
-	cout << "找不到對應DLL" << endl;
+	//cout << "找不到對應DLL" << dllName << endl;
 	return false;
 }
 
@@ -3978,6 +4088,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
 		// evasive
 		// 取得原本的API CALL
+		OgGetProcAddress = (ProtoGetProcAddress)GetProcAddress(k32, "GetProcAddress");
 		OgNtOpenKey = (ProtoNtOpenKey)GetProcAddress(nt, "NtOpenKey");
 		OgNtOpenKeyEx = (ProtoNtOpenKeyEx)GetProcAddress(nt, "NtOpenKeyEx");
 		OgNtQueryValueKey = (ProtoNtQueryValueKey)GetProcAddress(nt, "NtQueryValueKey");
@@ -4053,12 +4164,189 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
-
-		// evasive 掛上勾子
-		//DetourAttach(&(PVOID&)OgNtOpenKey, HookNtOpenKey);
 		InstallIATHook("kernel32.dll", "GetProcAddress", HookGetProcAddress);
 
+		// evasive 掛上Detour勾子
+		DetourAttach(&(PVOID&)OgNtOpenKey, HookNtOpenKey);
+		DetourAttach(&(PVOID&)OgNtOpenKeyEx, HookNtOpenKeyEx);
+		DetourAttach(&(PVOID&)OgNtQueryValueKey, HookNtQueryValueKey);
+		DetourAttach(&(PVOID&)OgNtCreateKey, HookNtCreateKey);
+		DetourAttach(&(PVOID&)OgNtEnumerateKey, HookNtEnumerateKey);
+		DetourAttach(&(PVOID&)OgNtEnumerateValueKey, HookNtEnumerateValueKey);
+		DetourAttach(&(PVOID&)OgNtCreateFile, HookNtCreateFile);
+		DetourAttach(&(PVOID&)OgNtQueryAttributesFile, HookNtQueryAttributesFile);
+		DetourAttach(&(PVOID&)OgNtDeviceIoControlFile, HookNtDeviceIoControlFile);
+		DetourAttach(&(PVOID&)OgNtQueryVolumeInformationFile, HookNtQueryVolumeInformationFile);
+		DetourAttach(&(PVOID&)OgNtQuerySystemInformation, HookNtQuerySystemInformation);
+		DetourAttach(&(PVOID&)OgNtQuerySystemInformationEx, HookNtQuerySystemInformationEx);
+		DetourAttach(&(PVOID&)OgNtPowerInformation, HookNtPowerInformation);
+		DetourAttach(&(PVOID&)OgNtQueryLicenseValue, HookNtQueryLicenseValue);
+		DetourAttach(&(PVOID&)OgNtQueryDirectoryFile, HookNtQueryDirectoryFile);
+		DetourAttach(&(PVOID&)OgNtQueryInformationProcess, HookNtQueryInformationProcess);
+		DetourAttach(&(PVOID&)OgNtQueryDirectoryObject, HookNtQueryDirectoryObject);
+		DetourAttach(&(PVOID&)OgNtCreateMutant, HookNtCreateMutant);
+		DetourAttach(&(PVOID&)OgNtOpenMutant, HookNtOpenMutant);
+		DetourAttach(&(PVOID&)OgGetAdaptersAddresses, HookGetAdaptersAddresses);
+		DetourAttach(&(PVOID&)OgProcess32FirstW, HookProcess32FirstW);
+		DetourAttach(&(PVOID&)OgProcess32NextW, HookProcess32NextW);
+		DetourAttach(&(PVOID&)OgCoCreateInstance, HookCoCreateInstance);
+		DetourAttach(&(PVOID&)OgGetModuleHandleW, HookGetModuleHandleW);
+		DetourAttach(&(PVOID&)OgGetModuleHandleA, HookGetModuleHandleA);
+		DetourAttach(&(PVOID&)OgGetModuleHandleExW, HookGetModuleHandleExW);
+		DetourAttach(&(PVOID&)OgGetModuleHandleExA, HookGetModuleHandleExA);
+		DetourAttach(&(PVOID&)OgGetAdaptersInfo, HookGetAdaptersInfo);
+		DetourAttach(&(PVOID&)OgSetupDiGetDeviceRegistryPropertyW, HookSetupDiGetDeviceRegistryPropertyW);
+		DetourAttach(&(PVOID&)OgSetupDiGetDeviceRegistryPropertyA, HookSetupDiGetDeviceRegistryPropertyA);
+		DetourAttach(&(PVOID&)OgGetLastInputInfo, HookGetLastInputInfo);
+		DetourAttach(&(PVOID&)OgEnumServicesStatusExA, HookEnumServicesStatusExA);
+		DetourAttach(&(PVOID&)OgEnumServicesStatusExW, HookEnumServicesStatusExW);
+		DetourAttach(&(PVOID&)OgInternetCheckConnectionA, HookInternetCheckConnectionA);
+		DetourAttach(&(PVOID&)OgInternetCheckConnectionW, HookInternetCheckConnectionW);
+		DetourAttach(&(PVOID&)OgGetWindowRect, HookGetWindowRect);
+		DetourAttach(&(PVOID&)OgGetMonitorInfoA, HookGetMonitorInfoA);
+		DetourAttach(&(PVOID&)OgGetMonitorInfoW, HookGetMonitorInfoW);
+		DetourAttach(&(PVOID&)OgFindWindowA, HookFindWindowA);
+		DetourAttach(&(PVOID&)OgFindWindowW, HookFindWindowW);
+		DetourAttach(&(PVOID&)OgFindWindowExA, HookFindWindowExA);
+		DetourAttach(&(PVOID&)OgFindWindowExW, HookFindWindowExW);
+		DetourAttach(&(PVOID&)OgGetCursorPos, HookGetCursorPos);
+		DetourAttach(&(PVOID&)OgGetSystemMetrics, HookGetSystemMetrics);
+		DetourAttach(&(PVOID&)OgSystemParametersInfoA, HookSystemParametersInfoA);
+		DetourAttach(&(PVOID&)OgSystemParametersInfoW, HookSystemParametersInfoW);
+		DetourAttach(&(PVOID&)OgGetAsyncKeyState, HookGetAsyncKeyState);
+		DetourAttach(&(PVOID&)OgGetForegroundWindow, HookGetForegroundWindow);
+		DetourAttach(&(PVOID&)OgLoadLibraryExW, HookLoadLibraryExW);
+		DetourAttach(&(PVOID&)OgLoadLibraryExA, HookLoadLibraryExA);
+		DetourAttach(&(PVOID&)OgLoadLibraryW, HookLoadLibraryW);
+		DetourAttach(&(PVOID&)OgLoadLibraryA, HookLoadLibraryA);
 
+		// evasive但非NT
+		
+		InstallIATHook("kernel32.dll", "GetModuleHandleW", HookGetModuleHandleW);
+		InstallIATHook("kernel32.dll", "LoadLibraryExW", HookLoadLibraryExW);
+		InstallIATHook("kernel32.dll", "LoadLibraryExA", HookLoadLibraryExA);
+		InstallIATHook("kernel32.dll", "LoadLibraryW", HookLoadLibraryW);
+
+		// 如果沒有呼叫就掛不上鉤子
+		InstallIATHook("kernel32.dll", "Process32FirstW", HookProcess32FirstW);
+		InstallIATHook("kernel32.dll", "Process32NextW", HookProcess32NextW);
+		InstallIATHook("kernel32.dll", "GetModuleHandleA", HookGetModuleHandleA);
+		InstallIATHook("kernel32.dll", "GetModuleHandleExW", HookGetModuleHandleExW);
+		InstallIATHook("kernel32.dll", "GetModuleHandleExA", HookGetModuleHandleExA);
+		InstallIATHook("user32.dll", "GetLastInputInfo", HookGetLastInputInfo);
+		InstallIATHook("user32.dll", "GetWindowRect", HookGetWindowRect);
+		InstallIATHook("user32.dll", "GetMonitorInfoA", HookGetMonitorInfoA);
+		InstallIATHook("user32.dll", "GetMonitorInfoW", HookGetMonitorInfoW);
+		InstallIATHook("user32.dll", "FindWindowA", HookFindWindowA);
+		InstallIATHook("user32.dll", "FindWindowW", HookFindWindowW);
+		InstallIATHook("user32.dll", "FindWindowExA", HookFindWindowExA);
+		InstallIATHook("user32.dll", "FindWindowExW", HookFindWindowExW);
+		InstallIATHook("user32.dll", "GetCursorPos", HookGetCursorPos);
+		InstallIATHook("user32.dll", "GetSystemMetrics", HookGetSystemMetrics);
+		InstallIATHook("user32.dll", "SystemParametersInfoA", HookSystemParametersInfoA);
+		InstallIATHook("user32.dll", "SystemParametersInfoW", HookSystemParametersInfoW);
+		InstallIATHook("user32.dll", "GetAsyncKeyState", HookGetAsyncKeyState);
+		InstallIATHook("user32.dll", "GetForegroundWindow", HookGetForegroundWindow);
+		InstallIATHook("kernel32.dll", "LoadLibraryA", HookLoadLibraryA);
+
+		// 未測試
+		InstallIATHook("iphlpapi.dll", "GetAdaptersAddresses", HookGetAdaptersAddresses);
+		InstallIATHook("ole32.dll", "CoCreateInstance", HookCoCreateInstance);
+		InstallIATHook("iphlpapi.dll", "GetAdaptersInfo", HookGetAdaptersInfo);
+		InstallIATHook("setupapi.dll", "SetupDiGetDeviceRegistryPropertyW", HookSetupDiGetDeviceRegistryPropertyW);
+		InstallIATHook("setupapi.dll", "SetupDiGetDeviceRegistryPropertyA", HookSetupDiGetDeviceRegistryPropertyA);
+		InstallIATHook("advapi32.dll", "EnumServicesStatusExA", HookEnumServicesStatusExA);
+		InstallIATHook("advapi32.dll", "EnumServicesStatusExW", HookEnumServicesStatusExW);
+		InstallIATHook("wininet.dll", "InternetCheckConnectionA", HookInternetCheckConnectionA);
+		InstallIATHook("wininet.dll", "InternetCheckConnectionW", HookInternetCheckConnectionW);
+		
+
+		// 不會突變且是NT的函數，掛上Detour
+		DetourAttach(&(PVOID&)OgNtOpenFile, HookNtOpenFile);
+		DetourAttach(&(PVOID&)OgNtReadFile, HookNtReadFile);
+		//DetourAttach(&(PVOID&)OgNtWriteFile, HookNtWriteFile);
+		DetourAttach(&(PVOID&)OgNtDeleteFile, HookNtDeleteFile);
+		DetourAttach(&(PVOID&)OgNtQueryInformationFile, HookNtQueryInformationFile);
+		DetourAttach(&(PVOID&)OgNtSetInformationFile, HookNtSetInformationFile);
+		DetourAttach(&(PVOID&)OgNtOpenDirectoryObject, HookNtOpenDirectoryObject);
+		DetourAttach(&(PVOID&)OgNtCreateDirectoryObject, HookNtCreateDirectoryObject);
+		DetourAttach(&(PVOID&)OgNtCreateUserProcess, HookNtCreateUserProcess);
+		DetourAttach(&(PVOID&)OgNtCreateProcess, HookNtCreateProcess);
+		DetourAttach(&(PVOID&)OgNtCreateProcessEx, HookNtCreateProcessEx);
+		DetourAttach(&(PVOID&)OgNtSuspendProcess, HookNtSuspendProcess);
+		DetourAttach(&(PVOID&)OgNtTerminateProcess, HookNtTerminateProcess);
+		DetourAttach(&(PVOID&)OgNtMapViewOfSection, HookNtMapViewOfSection);
+		DetourAttach(&(PVOID&)OgNtUnmapViewOfSection, HookNtUnmapViewOfSection);
+		DetourAttach(&(PVOID&)OgNtMakeTemporaryObject, HookNtMakeTemporaryObject);
+		DetourAttach(&(PVOID&)OgNtMakePermanentObject, HookNtMakePermanentObject);
+		DetourAttach(&(PVOID&)OgNtWriteVirtualMemory, HookNtWriteVirtualMemory);
+		DetourAttach(&(PVOID&)OgNtSetInformationProcess, HookNtSetInformationProcess);
+		DetourAttach(&(PVOID&)OgNtGetNextProcess, HookNtGetNextProcess);
+		DetourAttach(&(PVOID&)OgNtReplaceKey, HookNtReplaceKey);
+		DetourAttach(&(PVOID&)OgNtRenameKey, HookNtRenameKey);
+		DetourAttach(&(PVOID&)OgNtSaveKey, HookNtSaveKey);
+		DetourAttach(&(PVOID&)OgNtSaveKeyEx, HookNtSaveKeyEx);
+		DetourAttach(&(PVOID&)OgNtSetValueKey, HookNtSetValueKey);
+		DetourAttach(&(PVOID&)OgNtDeleteKey, HookNtDeleteKey);
+		DetourAttach(&(PVOID&)OgNtDeleteValueKey, HookNtDeleteValueKey);
+		DetourAttach(&(PVOID&)OgNtOpenTimer, HookNtOpenTimer);
+		DetourAttach(&(PVOID&)OgNtQueryTimer, HookNtQueryTimer);
+		DetourAttach(&(PVOID&)OgNtCreateTimer, HookNtCreateTimer);
+		DetourAttach(&(PVOID&)OgNtQuerySystemTime, HookNtQuerySystemTime);
+		DetourAttach(&(PVOID&)OgNtOpenEvent, HookNtOpenEvent);
+		DetourAttach(&(PVOID&)OgNtNotifyChangeKey, HookNtNotifyChangeKey);
+		DetourAttach(&(PVOID&)OgNtOpenSemaphore, HookNtOpenSemaphore);
+		DetourAttach(&(PVOID&)OgNtCreateSemaphore, HookNtCreateSemaphore);
+		DetourAttach(&(PVOID&)OgNtLockFile, HookNtLockFile);
+
+		DetourAttach(&(PVOID&)OgNtDelayExecution, HookNtDelayExecution);
+
+		// thread test
+		DetourAttach(&(PVOID&)OgNtCreateThread, HookNtCreateThread);
+		DetourAttach(&(PVOID&)OgNtCreateThreadEx, HookNtCreateThreadEx);
+
+		// 以下是不會突變且非NT的函數，直接使用Detours攔截
+		DetourAttach(&(PVOID&)OgGetSystemTime, HookGetSystemTime);
+		DetourAttach(&(PVOID&)OgGetLocalTime, HookGetLocalTime);
+		DetourAttach(&(PVOID&)OgFindResourceExW, HookFindResourceExW);
+		DetourAttach(&(PVOID&)OgFindResourceExA, HookFindResourceExA);
+
+		// network activity
+		DetourAttach(&(PVOID&)OgURLDownloadToFileW, HookURLDownloadToFileW);
+		DetourAttach(&(PVOID&)OgInternetOpenA, HookInternetOpenA);
+		DetourAttach(&(PVOID&)OgInternetConnectA, HookInternetConnectA);
+		DetourAttach(&(PVOID&)OgInternetConnectW, HookInternetConnectW);
+		DetourAttach(&(PVOID&)OgInternetOpenUrlA, HookInternetOpenUrlA);
+		DetourAttach(&(PVOID&)OgHttpOpenRequestA, HookHttpOpenRequestA);
+		DetourAttach(&(PVOID&)OgHttpOpenRequestW, HookHttpOpenRequestW);
+		DetourAttach(&(PVOID&)OgHttpSendRequestA, HookHttpSendRequestA);
+		DetourAttach(&(PVOID&)OgHttpSendRequestW, HookHttpSendRequestW);
+		DetourAttach(&(PVOID&)OgInternetReadFile, HookInternetReadFile);
+		DetourAttach(&(PVOID&)OgDnsQuery_A, HookDnsQuery_A);
+		DetourAttach(&(PVOID&)OgDnsQuery_W, HookDnsQuery_W);
+		DetourAttach(&(PVOID&)OgGetAddrInfoW, HookGetAddrInfoW);
+		DetourAttach(&(PVOID&)OgWSAStartup, HookWSAStartup);
+		DetourAttach(&(PVOID&)Oggethostbyname, Hookgethostbyname);
+		DetourAttach(&(PVOID&)Ogsocket, Hooksocket);
+		DetourAttach(&(PVOID&)Ogconnect, Hookconnect);
+		DetourAttach(&(PVOID&)Ogsend, Hooksend);
+		DetourAttach(&(PVOID&)Ogsendto, Hooksendto);
+		DetourAttach(&(PVOID&)Ogrecv, Hookrecv);
+		DetourAttach(&(PVOID&)Ogrecvfrom, Hookrecvfrom);
+		DetourAttach(&(PVOID&)Ogbind, Hookbind);
+		DetourAttach(&(PVOID&)OgWSARecv, HookWSARecv);
+		DetourAttach(&(PVOID&)OgWSARecvFrom, HookWSARecvFrom);
+		DetourAttach(&(PVOID&)OgWSASend, HookWSASend);
+		DetourAttach(&(PVOID&)OgWSASendTo, HookWSASendTo);
+		DetourAttach(&(PVOID&)OgWSASocketW, HookWSASocketW);
+
+		// child process management
+		DetourAttach(&(PVOID&)OgCreateProcessInternalW, HookCreateProcessInternalW);
+#ifdef __32BIT_SYS
+		DetourAttach(&(PVOID&)OgGetTickCount, HookGetTickCount);
+#endif
+
+		DetourAttach(&(PVOID&)OgQueryPerformanceCounter, HookQueryPerformanceCounter);
 
 		LONG err = DetourTransactionCommit();
 		if (err != NO_ERROR) {
@@ -4103,7 +4391,139 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
-		//DetourDetach(&(PVOID&)OgNtOpenKey, HookNtOpenKey);
+		DetourDetach(&(PVOID&)OgNtOpenKey, HookNtOpenKey);
+		DetourDetach(&(PVOID&)OgNtOpenKeyEx, HookNtOpenKeyEx);
+		DetourDetach(&(PVOID&)OgNtQueryValueKey, HookNtQueryValueKey);
+		DetourDetach(&(PVOID&)OgNtCreateKey, HookNtCreateKey);
+		DetourDetach(&(PVOID&)OgNtEnumerateKey, HookNtEnumerateKey);
+		DetourDetach(&(PVOID&)OgNtEnumerateValueKey, HookNtEnumerateValueKey);
+		DetourDetach(&(PVOID&)OgNtCreateFile, HookNtCreateFile);
+		DetourDetach(&(PVOID&)OgNtQueryAttributesFile, HookNtQueryAttributesFile);
+		DetourDetach(&(PVOID&)OgNtDeviceIoControlFile, HookNtDeviceIoControlFile);
+		DetourDetach(&(PVOID&)OgNtQueryVolumeInformationFile, HookNtQueryVolumeInformationFile);
+		DetourDetach(&(PVOID&)OgNtQuerySystemInformation, HookNtQuerySystemInformation);
+		DetourDetach(&(PVOID&)OgNtQuerySystemInformationEx, HookNtQuerySystemInformationEx);
+		DetourDetach(&(PVOID&)OgNtPowerInformation, HookNtPowerInformation);
+		DetourDetach(&(PVOID&)OgNtQueryLicenseValue, HookNtQueryLicenseValue);
+		DetourDetach(&(PVOID&)OgNtQueryDirectoryFile, HookNtQueryDirectoryFile);
+		DetourDetach(&(PVOID&)OgNtQueryInformationProcess, HookNtQueryInformationProcess);
+		DetourDetach(&(PVOID&)OgNtQueryDirectoryObject, HookNtQueryDirectoryObject);
+		DetourDetach(&(PVOID&)OgNtCreateMutant, HookNtCreateMutant);
+		DetourDetach(&(PVOID&)OgNtOpenMutant, HookNtOpenMutant);
+		DetourDetach(&(PVOID&)OgGetAdaptersAddresses, HookGetAdaptersAddresses);
+		DetourDetach(&(PVOID&)OgProcess32FirstW, HookProcess32FirstW);
+		DetourDetach(&(PVOID&)OgProcess32NextW, HookProcess32NextW);
+		DetourDetach(&(PVOID&)OgCoCreateInstance, HookCoCreateInstance);
+		DetourDetach(&(PVOID&)OgGetModuleHandleW, HookGetModuleHandleW);
+		DetourDetach(&(PVOID&)OgGetModuleHandleA, HookGetModuleHandleA);
+		DetourDetach(&(PVOID&)OgGetModuleHandleExW, HookGetModuleHandleExW);
+		DetourDetach(&(PVOID&)OgGetModuleHandleExA, HookGetModuleHandleExA);
+		DetourDetach(&(PVOID&)OgGetAdaptersInfo, HookGetAdaptersInfo);
+		DetourDetach(&(PVOID&)OgSetupDiGetDeviceRegistryPropertyW, HookSetupDiGetDeviceRegistryPropertyW);
+		DetourDetach(&(PVOID&)OgSetupDiGetDeviceRegistryPropertyA, HookSetupDiGetDeviceRegistryPropertyA);
+		DetourDetach(&(PVOID&)OgGetLastInputInfo, HookGetLastInputInfo);
+		DetourDetach(&(PVOID&)OgEnumServicesStatusExA, HookEnumServicesStatusExA);
+		DetourDetach(&(PVOID&)OgEnumServicesStatusExW, HookEnumServicesStatusExW);
+		DetourDetach(&(PVOID&)OgInternetCheckConnectionA, HookInternetCheckConnectionA);
+		DetourDetach(&(PVOID&)OgInternetCheckConnectionW, HookInternetCheckConnectionW);
+		DetourDetach(&(PVOID&)OgGetWindowRect, HookGetWindowRect);
+		DetourDetach(&(PVOID&)OgGetMonitorInfoA, HookGetMonitorInfoA);
+		DetourDetach(&(PVOID&)OgGetMonitorInfoW, HookGetMonitorInfoW);
+		DetourDetach(&(PVOID&)OgFindWindowA, HookFindWindowA);
+		DetourDetach(&(PVOID&)OgFindWindowW, HookFindWindowW);
+		DetourDetach(&(PVOID&)OgFindWindowExA, HookFindWindowExA);
+		DetourDetach(&(PVOID&)OgFindWindowExW, HookFindWindowExW);
+		DetourDetach(&(PVOID&)OgGetCursorPos, HookGetCursorPos);
+		DetourDetach(&(PVOID&)OgGetSystemMetrics, HookGetSystemMetrics);
+		DetourDetach(&(PVOID&)OgSystemParametersInfoA, HookSystemParametersInfoA);
+		DetourDetach(&(PVOID&)OgSystemParametersInfoW, HookSystemParametersInfoW);
+		DetourDetach(&(PVOID&)OgGetAsyncKeyState, HookGetAsyncKeyState);
+		DetourDetach(&(PVOID&)OgGetForegroundWindow, HookGetForegroundWindow);
+		DetourDetach(&(PVOID&)OgLoadLibraryExW, HookLoadLibraryExW);
+		DetourDetach(&(PVOID&)OgLoadLibraryExA, HookLoadLibraryExA);
+		DetourDetach(&(PVOID&)OgLoadLibraryW, HookLoadLibraryW);
+		DetourDetach(&(PVOID&)OgLoadLibraryA, HookLoadLibraryA);
+
+		DetourDetach(&(PVOID&)OgNtOpenFile, HookNtOpenFile);
+		DetourDetach(&(PVOID&)OgNtReadFile, HookNtReadFile);
+		DetourDetach(&(PVOID&)OgNtWriteFile, HookNtWriteFile);
+		DetourDetach(&(PVOID&)OgNtDeleteFile, HookNtDeleteFile);
+		DetourDetach(&(PVOID&)OgNtQueryInformationFile, HookNtQueryInformationFile);
+		DetourDetach(&(PVOID&)OgNtSetInformationFile, HookNtSetInformationFile);
+		DetourDetach(&(PVOID&)OgNtOpenDirectoryObject, HookNtOpenDirectoryObject);
+		DetourDetach(&(PVOID&)OgNtCreateDirectoryObject, HookNtCreateDirectoryObject);
+		DetourDetach(&(PVOID&)OgNtCreateUserProcess, HookNtCreateUserProcess);
+		DetourDetach(&(PVOID&)OgNtCreateProcess, HookNtCreateProcess);
+		DetourDetach(&(PVOID&)OgNtCreateProcessEx, HookNtCreateProcessEx);
+		DetourDetach(&(PVOID&)OgNtSuspendProcess, HookNtSuspendProcess);
+		DetourDetach(&(PVOID&)OgNtTerminateProcess, HookNtTerminateProcess);
+		DetourDetach(&(PVOID&)OgNtMapViewOfSection, HookNtMapViewOfSection);
+		DetourDetach(&(PVOID&)OgNtUnmapViewOfSection, HookNtUnmapViewOfSection);
+		DetourDetach(&(PVOID&)OgNtMakeTemporaryObject, HookNtMakeTemporaryObject);
+		DetourDetach(&(PVOID&)OgNtMakePermanentObject, HookNtMakePermanentObject);
+		DetourDetach(&(PVOID&)OgNtWriteVirtualMemory, HookNtWriteVirtualMemory);
+		DetourDetach(&(PVOID&)OgNtSetInformationProcess, HookNtSetInformationProcess);
+		DetourDetach(&(PVOID&)OgNtGetNextProcess, HookNtGetNextProcess);
+		DetourDetach(&(PVOID&)OgNtReplaceKey, HookNtReplaceKey);
+		DetourDetach(&(PVOID&)OgNtRenameKey, HookNtRenameKey);
+		DetourDetach(&(PVOID&)OgNtSaveKey, HookNtSaveKey);
+		DetourDetach(&(PVOID&)OgNtSaveKeyEx, HookNtSaveKeyEx);
+		DetourDetach(&(PVOID&)OgNtSetValueKey, HookNtSetValueKey);
+		DetourDetach(&(PVOID&)OgNtDeleteKey, HookNtDeleteKey);
+		DetourDetach(&(PVOID&)OgNtDeleteValueKey, HookNtDeleteValueKey);
+		DetourDetach(&(PVOID&)OgNtOpenTimer, HookNtOpenTimer);
+		DetourDetach(&(PVOID&)OgNtQueryTimer, HookNtQueryTimer);
+		DetourDetach(&(PVOID&)OgNtCreateTimer, HookNtCreateTimer);
+		DetourDetach(&(PVOID&)OgNtQuerySystemTime, HookNtQuerySystemTime);
+		DetourDetach(&(PVOID&)OgNtOpenEvent, HookNtOpenEvent);
+		DetourDetach(&(PVOID&)OgNtNotifyChangeKey, HookNtNotifyChangeKey);
+		DetourDetach(&(PVOID&)OgNtOpenSemaphore, HookNtOpenSemaphore);
+		DetourDetach(&(PVOID&)OgNtCreateSemaphore, HookNtCreateSemaphore);
+		DetourDetach(&(PVOID&)OgNtLockFile, HookNtLockFile);
+
+		DetourDetach(&(PVOID&)OgNtDelayExecution, HookNtDelayExecution);
+
+		// thread test
+		DetourDetach(&(PVOID&)OgNtCreateThread, HookNtCreateThread);
+		DetourDetach(&(PVOID&)OgNtCreateThreadEx, HookNtCreateThreadEx);
+
+		DetourDetach(&(PVOID&)OgGetSystemTime, HookGetSystemTime);
+		DetourDetach(&(PVOID&)OgGetLocalTime, HookGetLocalTime);
+		DetourDetach(&(PVOID&)OgFindResourceExW, HookFindResourceExW);
+		DetourDetach(&(PVOID&)OgFindResourceExA, HookFindResourceExA);
+		DetourDetach(&(PVOID&)OgURLDownloadToFileW, HookURLDownloadToFileW);
+		DetourDetach(&(PVOID&)OgInternetOpenA, HookInternetOpenA);
+		DetourDetach(&(PVOID&)OgInternetConnectA, HookInternetConnectA);
+		DetourDetach(&(PVOID&)OgInternetConnectW, HookInternetConnectW);
+		DetourDetach(&(PVOID&)OgInternetOpenUrlA, HookInternetOpenUrlA);
+		DetourDetach(&(PVOID&)OgHttpOpenRequestA, HookHttpOpenRequestA);
+		DetourDetach(&(PVOID&)OgHttpOpenRequestW, HookHttpOpenRequestW);
+		DetourDetach(&(PVOID&)OgHttpSendRequestA, HookHttpSendRequestA);
+		DetourDetach(&(PVOID&)OgHttpSendRequestW, HookHttpSendRequestW);
+		DetourDetach(&(PVOID&)OgInternetReadFile, HookInternetReadFile);
+		DetourDetach(&(PVOID&)OgDnsQuery_A, HookDnsQuery_A);
+		DetourDetach(&(PVOID&)OgDnsQuery_W, HookDnsQuery_W);
+		DetourDetach(&(PVOID&)OgGetAddrInfoW, HookGetAddrInfoW);
+		DetourDetach(&(PVOID&)OgWSAStartup, HookWSAStartup);
+		DetourDetach(&(PVOID&)Oggethostbyname, Hookgethostbyname);
+		DetourDetach(&(PVOID&)Ogsocket, Hooksocket);
+		DetourDetach(&(PVOID&)Ogconnect, Hookconnect);
+		DetourDetach(&(PVOID&)Ogsend, Hooksend);
+		DetourDetach(&(PVOID&)Ogsendto, Hooksendto);
+		DetourDetach(&(PVOID&)Ogrecv, Hookrecv);
+		DetourDetach(&(PVOID&)Ogrecvfrom, Hookrecvfrom);
+		DetourDetach(&(PVOID&)Ogbind, Hookbind);
+		DetourDetach(&(PVOID&)OgWSARecv, HookWSARecv);
+		DetourDetach(&(PVOID&)OgWSARecvFrom, HookWSARecvFrom);
+		DetourDetach(&(PVOID&)OgWSASend, HookWSASend);
+		DetourDetach(&(PVOID&)OgWSASendTo, HookWSASendTo);
+		DetourDetach(&(PVOID&)OgWSASocketW, HookWSASocketW);
+
+		DetourDetach(&(PVOID&)OgCreateProcessInternalW, HookCreateProcessInternalW);
+#ifdef __32BIT_SYS
+		DetourDetach(&(PVOID&)OgGetTickCount, HookGetTickCount);
+#endif
+		DetourDetach(&(PVOID&)OgQueryPerformanceCounter, HookQueryPerformanceCounter);
 
 		DetourTransactionCommit();
 
